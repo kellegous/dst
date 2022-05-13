@@ -1,5 +1,7 @@
 <?php
 
+const RFC3339 = 'Y-m-d\TH:i:sp';
+
 $tz = new DateTimeZone('America/New_York');
 $utc = new DateTimeZone('UTC');
 
@@ -8,8 +10,8 @@ $t = (new DateTimeImmutable('now', $tz))
 	->setTime(2, 0, 0, 0);
 printf(
 	"%s\t%s\n",
-	$t->format(DateTime::RFC3339),
-	$t->setTimezone($utc)->format(DateTime::RFC3339)
+	$t->format(RFC3339),
+	$t->setTimezone($utc)->format(RFC3339)
 );
 
 $t = (new DateTimeImmutable('now', $tz))
@@ -17,6 +19,6 @@ $t = (new DateTimeImmutable('now', $tz))
 	->setTime(1, 0, 0, 0);
 printf(
 	"%s\t%s\n",
-	$t->format(DateTime::RFC3339),
-	$t->setTimezone($utc)->format(DateTime::RFC3339)
+	$t->format(RFC3339),
+	$t->setTimezone($utc)->format(RFC3339)
 );
