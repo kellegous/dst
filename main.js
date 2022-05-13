@@ -15,7 +15,7 @@ function toRFC339(d) {
 	}
 
 	const ys = d.getFullYear() + '',
-		ms = p(d.getMonth()),
+		ms = p(d.getMonth() + 1),
 		ds = p(d.getDate()),
 		hs = p(d.getHours()),
 		ns = p(d.getMinutes()),
@@ -25,7 +25,7 @@ function toRFC339(d) {
 }
 
 process.env.TZ = 'America/New_York';
-const ta = new Date(2021, 2, 14, 2, 1, 0);
+const ta = new Date(2021, 2, 14, 2, 0, 0);
 console.log(`${toRFC339(ta)}\t${ta.toISOString()}`);
-const tb = new Date(2021, 10, 7, 1, 1, 0, 0);
+const tb = new Date(2021, 10, 7, 1, 0, 0, 0);
 console.log(`${toRFC339(tb)}\t${tb.toISOString()}`);

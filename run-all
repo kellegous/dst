@@ -1,0 +1,57 @@
+#!/usr/bin/env python3
+
+import argparse
+import os
+import subprocess
+import sys
+
+def is_in_docker():
+	return os.path.exists('/.dockerenv')
+
+def run_on_host():
+	here = os.path.abspath(os.path.dirname(__file__))
+	return subprocess.call([
+		'docker', 'run', '-ti', '--rm',
+		'-v', "{}:/data".format(here),
+		'-w', '/data',
+		'kellegous/dst',
+		'./run-all'
+	])
+
+def run_in_docker():
+	def exec(cmd):
+		status = subprocess.call(cmd)
+		if status != 0:
+			raise Exception(cmd, status)
+
+	#runners
+
+	runners = [
+		('Ruby', lambda: exec(['ruby', 'main.rb'])),
+		('Python', lambda: exec(['python3', 'main.py'])),
+		('JavaScript', lambda: exec(['node', 'main.js'])),
+		('Go', lambda: exec(['go', 'run', 'main.go'])),
+		('PHP', lambda: exec(['php', 'main.php'])),
+	]
+
+	for (name, fn) in runners:
+		print(name)
+		fn()
+		print()
+
+
+def main():
+	parser = argparse.ArgumentParser()
+	parser.add_argument(
+		'--in-docker',
+		action='store_true',
+		default=is_in_docker(),
+		help = 'run the logic for within the docker container')
+	args = parser.parse_args()
+
+	if not args.in_docker:
+		return run_on_host()
+	return run_in_docker()
+
+if __name__ == '__main__':
+	sys.exit(main())

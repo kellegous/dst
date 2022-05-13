@@ -13,9 +13,9 @@ func main() {
 	}
 
 	var t time.Time
-	t = time.Date(2022, time.March, 13, 2, 2, 0, 0, loc)
+	t = time.Date(2021, time.March, 14, 2, 0, 0, 0, loc)
 	fmt.Printf("%s (%s)\n", t.Format(time.RFC3339), t.UTC().Format(time.RFC3339))
 
-	t = time.Date(2021, time.November, 7, 1, 2, 0, 0, loc)
+	t = time.Date(2021, time.November, 7, 1, 0, 0, 0, loc)
 	fmt.Printf("%s (%s)\n", t.Format(time.RFC3339), t.UTC().Format(time.RFC3339))
 }
