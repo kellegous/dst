@@ -29,6 +29,7 @@ func hadDockerImage(name string) bool {
 type Flags struct {
 	InDocker bool
 	Root     string
+	Verbose  bool
 }
 
 func (f *Flags) Register(fs *flag.FlagSet) {
@@ -42,12 +43,32 @@ func (f *Flags) Register(fs *flag.FlagSet) {
 		"root",
 		"",
 		"the project's root directory")
+	fs.BoolVar(
+		&f.Verbose,
+		"verbose",
+		false,
+		"print out more stuff")
+}
+
+func ParseFlags() (*Flags, error) {
+	var flags Flags
+	flags.Register(flag.CommandLine)
+	flag.Parse()
+
+	var err error
+	flags.Root, err = getRoot(flags.Root)
+	if err != nil {
+		return nil, err
+	}
+
+	return &flags, nil
 }
 
 func buildDockerImage(
 	root string,
 	name string,
 	arch string,
+	verbose bool,
 ) error {
 	c := exec.Command(
 		"docker",
@@ -56,13 +77,20 @@ func buildDockerImage(
 		fmt.Sprintf("--build-arg=ARCH=%s", arch),
 		".")
 	c.Dir = root
-	c.Stdout = os.Stdout
-	c.Stderr = os.Stderr
+	if verbose {
+		c.Stdout = os.Stdout
+		c.Stderr = os.Stderr
+	}
 	return c.Run()
 }
 
-func RunOnHost(root string) error {
-	if err := buildDockerImage(root, dockerImageName, runtime.GOARCH); err != nil {
+func RunOnHost(flags *Flags) error {
+	if err := buildDockerImage(
+		flags.Root,
+		dockerImageName,
+		runtime.GOARCH,
+		flags.Verbose,
+	); err != nil {
 		return err
 	}
 
@@ -71,14 +99,14 @@ func RunOnHost(root string) error {
 		"run",
 		"-ti",
 		"--rm",
-		"-v", fmt.Sprintf("%s:/data", root),
+		"-v", fmt.Sprintf("%s:/data", flags.Root),
 		"-w", "/data",
 		dockerImageName,
 		"go", "run", "run-all.go")
 	c.Stdin = os.Stdin
 	c.Stdout = os.Stdout
 	c.Stderr = os.Stderr
-	c.Dir = root
+	c.Dir = flags.Root
 	return c.Run()
 }
 
@@ -111,7 +139,7 @@ func withOutput(c *exec.Cmd) *exec.Cmd {
 	return c
 }
 
-func RunInDocker(root string) error {
+func RunInDocker(flags *Flags) error {
 	runners := []Runner{
 		newRunner(
 			"Ruby",
@@ -163,21 +191,17 @@ func getRoot(fromFlag string) (string, error) {
 }
 
 func main() {
-	var flags Flags
-	flags.Register(flag.CommandLine)
-	flag.Parse()
-
-	root, err := getRoot(flags.Root)
+	flags, err := ParseFlags()
 	if err != nil {
 		log.Panic(err)
 	}
 
 	if isInDocker() {
-		if err := RunInDocker(root); err != nil {
+		if err := RunInDocker(flags); err != nil {
 			log.Panic(err)
 		}
 	} else {
-		if err := RunOnHost(root); err != nil {
+		if err := RunOnHost(flags); err != nil {
 			log.Panic(err)
 		}
 	}
