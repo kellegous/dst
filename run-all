@@ -4,78 +4,83 @@ import argparse
 import os
 import subprocess
 import sys
-from unittest.result import STDERR_LINE
+
 
 def is_in_docker():
-	return os.path.exists('/.dockerenv')
+    return os.path.exists('/.dockerenv')
+
 
 def has_docker_image(name):
-	return subprocess.call(
-		['docker', 'inspect', name],
-		stdout=subprocess.DEVNULL,
-		stderr=subprocess.DEVNULL
-	) == 0
+    return subprocess.call(
+        ['docker', 'inspect', name],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL
+    ) == 0
+
 
 def run_on_host():
-	here = os.path.abspath(os.path.dirname(__file__))
-	if not has_docker_image('kellegous/dst'):
-		run_command([
-			'docker', 'build',
-			'-t', 'kellegous/dst',
-			'.'
-		], cwd=here)
+    here = os.path.abspath(os.path.dirname(__file__))
+    if not has_docker_image('kellegous/dst'):
+        run_command([
+            'docker', 'build',
+            '-t', 'kellegous/dst',
+            '.'
+        ], cwd=here)
 
-	run_command([
-		'docker', 'run', '-ti', '--rm',
-		'-v', "{}:/data".format(here),
-		'-w', '/data',
-		'kellegous/dst',
-		'./run-all'
-	])
+    run_command([
+        'docker', 'run', '-ti', '--rm',
+        '-v', "{}:/data".format(here),
+        '-w', '/data',
+        'kellegous/dst',
+        './run-all'
+    ])
+
 
 def run_command(cmd, stdout=None, stderr=None, cwd=None):
-	status = subprocess.call(
-		cmd,
-		stdout=stdout,
-		stderr=stderr,
-		cwd=cwd)
-	if status != 0:
-		raise Exception(cmd, status)
-	
+    status = subprocess.call(
+        cmd,
+        stdout=stdout,
+        stderr=stderr,
+        cwd=cwd)
+    if status != 0:
+        raise Exception(cmd, status)
+
+
 def run_in_docker():
-	def exec(cmd):
-		status = subprocess.call(cmd)
-		if status != 0:
-			raise Exception(cmd, status)
+    def exec(cmd):
+        status = subprocess.call(cmd)
+        if status != 0:
+            raise Exception(cmd, status)
 
-	runners = [
-		('Ruby', lambda: exec(['ruby', 'main.rb'])),
-		('Python', lambda: exec(['python3', 'main.py'])),
-		('JavaScript', lambda: exec(['node', 'main.js'])),
-		('Go', lambda: exec(['go', 'run', 'main.go'])),
-		('PHP', lambda: exec(['php', 'main.php'])),
-	]
+    runners = [
+        ('Ruby', lambda: exec(['ruby', 'main.rb'])),
+        ('Python', lambda: exec(['python3', 'main.py'])),
+        ('JavaScript', lambda: exec(['node', 'main.js'])),
+        ('Go', lambda: exec(['go', 'run', 'main.go'])),
+        ('PHP', lambda: exec(['php', 'main.php'])),
+    ]
 
-	for (name, fn) in runners:
-		print(name)
-		fn()
-		print()
+    for (name, fn) in runners:
+        print(name)
+        fn()
+        print()
 
 
 def main():
-	parser = argparse.ArgumentParser()
-	parser.add_argument(
-		'--in-docker',
-		action='store_true',
-		default=is_in_docker(),
-		help = 'run the logic for within the docker container')
-	args = parser.parse_args()
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '--in-docker',
+        action='store_true',
+        default=is_in_docker(),
+        help='run the logic for within the docker container')
+    args = parser.parse_args()
 
-	if not args.in_docker:
-		run_on_host()
-	else:
-		run_in_docker()
-	return 0
+    if not args.in_docker:
+        run_on_host()
+    else:
+        run_in_docker()
+    return 0
+
 
 if __name__ == '__main__':
-	sys.exit(main())
+    sys.exit(main())

@@ -1,5 +1,7 @@
 FROM ubuntu:jammy
 
+ARG ARCH
+
 RUN DEBIAN_FRONTEND=noninteractive \
 	ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime \
 	&& apt-get update \
@@ -11,9 +13,10 @@ RUN DEBIAN_FRONTEND=noninteractive \
 	python3-pip \
 	nodejs \
 	ruby \
+	openjdk-18-jdk \
 	&& gem install activesupport \
 	&& pip install python-dateutil \
 	&& curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y \
-	&& curl https://dl.google.com/go/go1.18.2.linux-amd64.tar.gz | tar xz -C /usr/local
+	&& curl https://dl.google.com/go/go1.18.2.linux-${ARCH}.tar.gz | tar xz -C /usr/local
 
 ENV PATH="/usr/local/go/bin:/root/.cargo/bin:${PATH}"
