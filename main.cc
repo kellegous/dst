@@ -1,3 +1,4 @@
+#include <getopt.h>
 #include <time.h>
 
 #include <iomanip>
@@ -34,7 +35,49 @@ bool to_rfc3339(std::string *dst, const struct tm *t) {
     return true;
 }
 
+struct Flags {
+    Flags() : is_dst(false), verbose(false) {}
+    bool is_dst;
+    bool verbose;
+};
+
+void ParseArgs(int argc, char *argv[], Flags *flags) {
+    static struct option long_options[] = {
+        {"dst", no_argument, 0, 'd'},
+        {"verbose", no_argument, 0, 'v'},
+        {0, 0, 0, 0},
+    };
+
+    while (true) {
+        int option_index = 0;
+        int c = getopt_long(argc, argv, "dv", long_options, &option_index);
+        if (c == -1) {
+            break;
+        }
+
+        switch (c) {
+            case 'd':
+                flags->is_dst = true;
+                break;
+            case 'v':
+                flags->verbose = true;
+            case '?':
+                break;
+            default:
+                abort();
+        }
+    }
+}
+
 int main(int argc, char *argv[]) {
+    Flags flags;
+
+    ParseArgs(argc, argv, &flags);
+
+    if (flags.verbose) {
+        std::cout << "Daylight Savings Time: " << (flags.is_dst ? "Yes" : "No") << std::endl;
+    }
+
     struct tm a = {
         0,
         0,
@@ -44,19 +87,12 @@ int main(int argc, char *argv[]) {
         2021 - 1900,
         0,
         0,
-        0,
+        flags.is_dst,
     };
 
     time_t ta = mktime(&a);
 
     std::string loc, utc;
-    to_rfc3339(&loc, localtime(&ta));
-    to_rfc3339(&utc, gmtime(&ta));
-    std::cout << "Mar 14 2021 02:00" << std::endl;
-    std::cout << loc << '\t' << utc << std::endl;
-
-    a = {0, 0, 2, 14, 2, 2021 - 1900, 0, 0, 1};
-    ta = mktime(&a);
     to_rfc3339(&loc, localtime(&ta));
     to_rfc3339(&utc, gmtime(&ta));
     std::cout << loc << '\t' << utc << std::endl;
@@ -70,13 +106,12 @@ int main(int argc, char *argv[]) {
         2021 - 1900,
         0,
         0,
-        0,
+        flags.is_dst,
     };
 
     time_t tb = mktime(&b);
     to_rfc3339(&loc, localtime(&tb));
     to_rfc3339(&utc, gmtime(&tb));
-    std::cout << "Nov 7 2021 01:00" << std::endl;
     std::cout << loc << '\t' << utc << std::endl;
 
     return 0;

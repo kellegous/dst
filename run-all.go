@@ -166,6 +166,16 @@ func RunInDocker(flags *Flags) error {
 			"PHP",
 			withOutput(exec.Command("php", "main.php")),
 		),
+		newRunner(
+			"Rust",
+			exec.Command("cargo", "build"),
+			withOutput(exec.Command("./target/debug/dst")),
+		),
+		newRunner(
+			"C++",
+			exec.Command("make", "clean", "ALL"),
+			withOutput(exec.Command("./main")),
+		),
 	}
 
 	for _, runner := range runners {
