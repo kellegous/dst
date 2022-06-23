@@ -1,4 +1,5 @@
 #include <getopt.h>
+#include <stdint.h>
 #include <time.h>
 
 #include <iomanip>
@@ -70,6 +71,8 @@ void ParseArgs(int argc, char *argv[], Flags *flags) {
 }
 
 int main(int argc, char *argv[]) {
+    setenv("TZ", "America/New_York", 1);
+
     Flags flags;
 
     ParseArgs(argc, argv, &flags);
@@ -79,15 +82,15 @@ int main(int argc, char *argv[]) {
     }
 
     struct tm a = {
-        0,
-        0,
-        2,
-        14,
-        2,
-        2021 - 1900,
-        0,
-        0,
-        flags.is_dst,
+        .tm_sec = 0,
+        .tm_min = 0,
+        .tm_hour = 2,
+        .tm_mday = 14,
+        .tm_mon = 2,
+        .tm_year = 2021 - 1900,
+        .tm_yday = 0,
+        .tm_wday = 0,
+        .tm_isdst = flags.is_dst,
     };
 
     time_t ta = mktime(&a);
@@ -98,15 +101,15 @@ int main(int argc, char *argv[]) {
     std::cout << loc << '\t' << utc << std::endl;
 
     struct tm b = {
-        0,
-        0,
-        1,
-        7,
-        10,
-        2021 - 1900,
-        0,
-        0,
-        flags.is_dst,
+        .tm_sec = 0,
+        .tm_min = 0,
+        .tm_hour = 1,
+        .tm_mday = 7,
+        .tm_mon = 10,
+        .tm_year = 2021 - 1900,
+        .tm_yday = 0,
+        .tm_wday = 0,
+        .tm_isdst = flags.is_dst,
     };
 
     time_t tb = mktime(&b);
