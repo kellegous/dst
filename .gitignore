@@ -1,3 +1,5 @@
 /target
 /main
 /Main.class
+/.vscode
+.DS_Store

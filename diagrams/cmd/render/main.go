@@ -142,11 +142,26 @@ func RenderNegSummary(w, h float64) *svg.Node {
 		false)
 
 	a := pos["EST"][1]
-	svg.Text(a.X+100+10, a.Y-100, "Go, JavaScript, Java, PHP, Python, & Ruby").
-		AddAttribute("fill", "#666").
-		AddAttribute("font-family", "Helvetica").
-		AddAttribute("font-size", 14).
-		AppendTo(doc)
+	if w > 600 {
+		svg.Text(a.X+100+10, a.Y-100, "Go, JavaScript, Java, PHP, Python, & Ruby").
+			AddAttribute("fill", "#666").
+			AddAttribute("font-family", "Helvetica").
+			AddAttribute("font-size", 14).
+			AppendTo(doc)
+	} else {
+		svg.TextLines(
+			a.X+100+10,
+			a.Y-100-20,
+			[]string{
+				"Go, JavaScript, Java, PHP,",
+				"Python, & Ruby",
+			},
+			"1.6em").
+			AddAttribute("fill", "#666").
+			AddAttribute("font-family", "Helvetica").
+			AddAttribute("font-size", 14).
+			AppendTo(doc)
+	}
 
 	svg.Line(a.X, a.Y, a.X+100, a.Y-100).
 		AddAttribute("stroke", "#333").
@@ -189,14 +204,29 @@ func RenderPosSummary(w, h float64) *svg.Node {
 		AppendTo(doc)
 
 	b := pos["EDT"][2]
-	svg.Text(
-		b.X+100+10,
-		b.Y-100,
-		"JavaScript, Java, PHP, & Ruby").
-		AddAttribute("fill", "#666").
-		AddAttribute("font-family", "Helvetica").
-		AddAttribute("font-size", 14).
-		AppendTo(doc)
+	if w > 600 {
+		svg.Text(
+			b.X+100+10,
+			b.Y-100,
+			"JavaScript, Java, PHP, & Ruby").
+			AddAttribute("fill", "#666").
+			AddAttribute("font-family", "Helvetica").
+			AddAttribute("font-size", 14).
+			AppendTo(doc)
+	} else {
+		svg.TextLines(
+			b.X+100+10,
+			b.Y-100-20,
+			[]string{
+				"Go, JavaScript, Java,",
+				"PHP, & Ruby",
+			},
+			"1.6em").
+			AddAttribute("fill", "#666").
+			AddAttribute("font-family", "Helvetica").
+			AddAttribute("font-size", 14).
+			AppendTo(doc)
+	}
 	svg.Line(b.X, b.Y, b.X+100, b.Y-100).
 		AddAttribute("stroke", "#333").
 		AddAttribute("stroke-width", 2).

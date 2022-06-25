@@ -7,10 +7,13 @@ IMAGES := pos-sm.svg \
 	neg-sm-summary.svg \
 	neg-lg-summary.svg
 
-%.svg: bin/render
-	bin/render
 
 ALL: $(IMAGES) bin/server
+
+.PRECIOUS: bin/render
+
+%.svg: bin/render
+	bin/render
 
 bin/%: cmd/%/main.go $(shell find pkg -type f)
 	go build -o $@ ./cmd/$*
