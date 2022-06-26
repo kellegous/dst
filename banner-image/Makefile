@@ -1,3 +1,5 @@
+INTERESTING_SEED := 7b62195e37977f83
+
 ALL: combined-with-oceans.json bin/render-one bin/render-many
 
 bin/%: cmd/%/main.go $(shell find pkg -type f)
@@ -10,6 +12,9 @@ combined-with-oceans.json:
 
 clean:
 	rm -rf bin
+
+map.png: combined-with-oceans.json bin/render-one
+	bin/render-one --dst=$@ --seed=$(INTERESTING_SEED)
 
 real-clean: clean
 	rm -f combined-with-oceans.json
